@@ -3,7 +3,9 @@ package com.github.florent37.glidepalette.sample;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,7 +26,16 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private EditText editText;
     private ProgressBar progressBar;
-    private Button button;
+    private Button urlButton;
+    private Button localButton;
+    private TextView textVibrant;
+    private TextView textVibrantLight;
+    private TextView textVibrantDark;
+    private TextView textMuted;
+    private TextView textMutedLight;
+    private TextView textMutedDark;
+
+    private final int LOCAL_IMAGE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,14 +44,15 @@ public class MainActivity extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.image);
         editText = (EditText) findViewById(R.id.edit_text);
         progressBar = (ProgressBar) findViewById(R.id.progress);
-        button = (Button) findViewById(R.id.button);
+        urlButton = (Button) findViewById(R.id.button);
+        localButton = (Button) findViewById(R.id.button_local);
 
-        final TextView textVibrant = (TextView) findViewById(R.id.textVibrant);
-        final TextView textVibrantLight = (TextView) findViewById(R.id.textVibrantLight);
-        final TextView textVibrantDark = (TextView) findViewById(R.id.textVibrantDark);
-        final TextView textMuted = (TextView) findViewById(R.id.textMuted);
-        final TextView textMutedLight = (TextView) findViewById(R.id.textMutedLight);
-        final TextView textMutedDark = (TextView) findViewById(R.id.textMutedDark);
+        textVibrant = (TextView) findViewById(R.id.textVibrant);
+        textVibrantLight = (TextView) findViewById(R.id.textVibrantLight);
+        textVibrantDark = (TextView) findViewById(R.id.textVibrantDark);
+        textMuted = (TextView) findViewById(R.id.textMuted);
+        textMutedLight = (TextView) findViewById(R.id.textMutedLight);
+        textMutedDark = (TextView) findViewById(R.id.textMutedDark);
 
         View.OnClickListener colorListener = new View.OnClickListener() {
             @Override
@@ -48,13 +60,13 @@ public class MainActivity extends AppCompatActivity {
                 ColorDrawable background = (ColorDrawable) v.getBackground();
                 if (null == background) {
                     // The Palette was unable to get a color for us.
-                    Snackbar.make(button, "Sorry, the Palette was unable to put a color here.", Snackbar
+                    Snackbar.make(urlButton, "Sorry, the Palette was unable to put a color here.", Snackbar
                             .LENGTH_SHORT).show();
                 } else {
                     int backgroundColor = background.getColor();
                     int textColor = ((TextView) v).getCurrentTextColor();
                     final String hexColor = String.format("#%06X", (0xFFFFFF & backgroundColor));
-                    Snackbar snack = Snackbar.make(button, "Color is " + hexColor, Snackbar.LENGTH_LONG);
+                    Snackbar snack = Snackbar.make(urlButton, "Color is " + hexColor, Snackbar.LENGTH_LONG);
                     View snackbarView = snack.getView();
                     snackbarView.setBackgroundColor(backgroundColor);
                     snack.setActionTextColor(textColor);
@@ -82,53 +94,78 @@ public class MainActivity extends AppCompatActivity {
         textMutedLight.setOnClickListener(colorListener);
         textMutedDark.setOnClickListener(colorListener);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        urlButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 hideKeyboard();
                 String url = editText.getText().toString().trim();
                 if (url.isEmpty()) {
-                    Snackbar.make(button, "Please enter a URL in the box!", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(urlButton, "Please enter a URL in the box!", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
-                progressBar.setVisibility(View.VISIBLE);
-                Glide.with(MainActivity.this).load(url)
-                        .fitCenter()
-                        .listener(GlidePalette.with(url)
-                                .use(GlidePalette.Profile.VIBRANT)
-                                .intoBackground(textVibrant, GlidePalette.Swatch.RGB)
-                                .intoTextColor(textVibrant, GlidePalette.Swatch.BODY_TEXT_COLOR)
-                                .use(GlidePalette.Profile.VIBRANT_DARK)
-                                .intoBackground(textVibrantDark, GlidePalette.Swatch.RGB)
-                                .intoTextColor(textVibrantDark, GlidePalette.Swatch.BODY_TEXT_COLOR)
-                                .use(GlidePalette.Profile.VIBRANT_LIGHT)
-                                .intoBackground(textVibrantLight, GlidePalette.Swatch.RGB)
-                                .intoTextColor(textVibrantLight, GlidePalette.Swatch.BODY_TEXT_COLOR)
-
-                                .use(GlidePalette.Profile.MUTED)
-                                .intoBackground(textMuted, GlidePalette.Swatch.RGB)
-                                .intoTextColor(textMuted, GlidePalette.Swatch.BODY_TEXT_COLOR)
-                                .use(GlidePalette.Profile.MUTED_DARK)
-                                .intoBackground(textMutedDark, GlidePalette.Swatch.RGB)
-                                .intoTextColor(textMutedDark, GlidePalette.Swatch.BODY_TEXT_COLOR)
-                                .use(GlidePalette.Profile.MUTED_LIGHT)
-                                .intoBackground(textMutedLight, GlidePalette.Swatch.RGB)
-                                .intoTextColor(textMutedLight, GlidePalette.Swatch.BODY_TEXT_COLOR)
-
-                                .intoCallBack(new GlidePalette.CallBack() {
-
-                                    @Override
-                                    public void onPaletteLoaded(Palette palette) {
-                                        //specific task
-                                        progressBar.setVisibility(View.GONE);
-                                        editText.setVisibility(View.GONE);
-                                        button.setVisibility(View.GONE);
-                                        findViewById(R.id.bottom_layout).setVisibility(View.VISIBLE);
-                                    }
-                                }))
-                        .into(imageView);
+                loadIntoGlide(url);
             }
         });
+
+        localButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Open local storage and obtain an image
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent, LOCAL_IMAGE_REQUEST);
+            }
+        });
+    }
+
+    private void loadIntoGlide(String url) {
+        progressBar.setVisibility(View.VISIBLE);
+        Glide.with(MainActivity.this).load(url)
+                .fitCenter()
+                .listener(GlidePalette.with(url)
+                        .use(GlidePalette.Profile.VIBRANT)
+                        .intoBackground(textVibrant, GlidePalette.Swatch.RGB)
+                        .intoTextColor(textVibrant, GlidePalette.Swatch.BODY_TEXT_COLOR)
+                        .use(GlidePalette.Profile.VIBRANT_DARK)
+                        .intoBackground(textVibrantDark, GlidePalette.Swatch.RGB)
+                        .intoTextColor(textVibrantDark, GlidePalette.Swatch.BODY_TEXT_COLOR)
+                        .use(GlidePalette.Profile.VIBRANT_LIGHT)
+                        .intoBackground(textVibrantLight, GlidePalette.Swatch.RGB)
+                        .intoTextColor(textVibrantLight, GlidePalette.Swatch.BODY_TEXT_COLOR)
+
+                        .use(GlidePalette.Profile.MUTED)
+                        .intoBackground(textMuted, GlidePalette.Swatch.RGB)
+                        .intoTextColor(textMuted, GlidePalette.Swatch.BODY_TEXT_COLOR)
+                        .use(GlidePalette.Profile.MUTED_DARK)
+                        .intoBackground(textMutedDark, GlidePalette.Swatch.RGB)
+                        .intoTextColor(textMutedDark, GlidePalette.Swatch.BODY_TEXT_COLOR)
+                        .use(GlidePalette.Profile.MUTED_LIGHT)
+                        .intoBackground(textMutedLight, GlidePalette.Swatch.RGB)
+                        .intoTextColor(textMutedLight, GlidePalette.Swatch.BODY_TEXT_COLOR)
+
+                        .intoCallBack(new GlidePalette.CallBack() {
+
+                            @Override
+                            public void onPaletteLoaded(Palette palette) {
+                                onImageLoaded();
+                            }
+                        }))
+                .into(imageView);
+    }
+
+    private void onImageLoaded() {
+        progressBar.setVisibility(View.GONE);
+        editText.setVisibility(View.GONE);
+        urlButton.setVisibility(View.GONE);
+        findViewById(R.id.bottom_layout).setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == LOCAL_IMAGE_REQUEST) {
+            loadIntoGlide(data.getData().toString());
+        }
     }
 
     @Override
@@ -140,7 +177,8 @@ public class MainActivity extends AppCompatActivity {
             // Reset the app for another image into the palette
             editText.setText("");
             editText.setVisibility(View.VISIBLE);
-            button.setVisibility(View.VISIBLE);
+            urlButton.setVisibility(View.VISIBLE);
+            localButton.setVisibility(View.VISIBLE);
             imageView.setImageDrawable(null);
             findViewById(R.id.bottom_layout).setVisibility(View.GONE);
         }

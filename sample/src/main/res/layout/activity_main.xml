@@ -107,14 +107,23 @@
             android:layout_margin="16dp"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/edit_text"
-            android:text="Get Image"/>
+            android:text="Get From URL"/>
+
+        <Button
+            android:id="@+id/button_local"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/button"
+            android:text="Or, Get From Local Storage"/>
 
         <ProgressBar
             android:id="@+id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:layout_below="@+id/button"
+            android:layout_below="@+id/button_local"
             android:layout_centerHorizontal="true"
             android:indeterminate="true"/>
 
