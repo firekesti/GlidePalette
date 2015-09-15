@@ -1,22 +1,23 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_centerHorizontal="true"
-         />
-
     <LinearLayout
+        android:id="@+id/bottom_layout"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/image"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="48dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -33,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="20dp"
-                android:text="Vibrant" />
+                android:text="Vibrant"/>
 
             <TextView
                 android:id="@+id/textVibrantDark"
@@ -41,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="20dp"
-                android:text="Vibrant dark" />
+                android:text="Vibrant dark"/>
 
             <TextView
                 android:id="@+id/textVibrantLight"
@@ -49,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="20dp"
-                android:text="Vibrant Light" />
+                android:text="Vibrant Light"/>
         </LinearLayout>
 
         <LinearLayout
@@ -65,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="20dp"
-                android:text="Muted" />
+                android:text="Muted"/>
 
             <TextView
                 android:id="@+id/textMutedDark"
@@ -73,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="20dp"
-                android:text="Muted dark" />
+                android:text="Muted dark"/>
 
             <TextView
                 android:id="@+id/textMutedLight"
@@ -81,8 +82,47 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="20dp"
-                android:text="Muted Light" />
+                android:text="Muted Light"/>
         </LinearLayout>
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_above="@id/bottom_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <EditText
+            android:id="@+id/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Insert URL to image here"
+            android:layout_margin="16dp"
+            android:inputType="textUri"/>
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/edit_text"
+            android:text="Get Image"/>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_below="@+id/button"
+            android:layout_centerHorizontal="true"
+            android:indeterminate="true"/>
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
 
 </RelativeLayout>
